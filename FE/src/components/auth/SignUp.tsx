@@ -164,11 +164,11 @@ export default function SignUp() {
               color:'#f6be39', letterSpacing:2,
               textShadow:'0 0 8px rgba(246,190,57,0.4)',
               textTransform:'uppercase', marginBottom:8,
-            }}>TRỞ THÀNH ĐẠI GIA</h1>
+            }}>ĐĂNG KÝ HỘI VIÊN</h1>
             <p style={{
               fontFamily:"'Barlow Condensed',sans-serif",
               fontSize:11, letterSpacing:6, textTransform:'uppercase', color:'#bdcabe',
-            }}>Gia nhập giới thượng lưu Indochine</p>
+            }}>Gia nhập cộng đồng thượng lưu Indochine</p>
           </motion.div>
 
           <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
@@ -185,7 +185,7 @@ export default function SignUp() {
               <Field 
                 label="Email" 
                 type="email" 
-                placeholder="dai.gia@indochine.vn"
+                placeholder="hoivien@indochine.vn"
                 value={formData.email}
                 onChange={(v) => handleInputChange('email', v)}
                 disabled={isLoading}

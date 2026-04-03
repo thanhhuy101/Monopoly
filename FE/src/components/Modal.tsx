@@ -28,7 +28,7 @@ export default function Modal() {
             <div className="mbrow">
               {modal.buttons.map((btn: ModalButton, i: number) => (
                 <motion.button key={i}
-                  className={clsx(BTN_CLASS[btn.cls] ?? 'mb')}
+                  className={clsx(BTN_CLASS[btn.cls] ?? 'mb', 'cursor-pointer')}
                   onClick={() => handleModalAction(btn)}
                   whileHover={{ scale:1.05, y:-2 }} whileTap={{ scale:0.97 }}>
                   {btn.label}

@@ -101,6 +101,7 @@ export interface ModalConfig {
   title: string;
   body: string;
   buttons: ModalButton[];
+  playerId?: number;
 }
 
 // ─── TOAST / FLOAT TYPES ──────────────────────────────────────────────────────
@@ -185,6 +186,15 @@ export interface BankruptcyFlow {
   expiresAt: Date;
 }
 
+export interface TradeOffer {
+  fromId: number;
+  toId: number;
+  fromProps: number[]; // space IDs
+  toProps: number[];   // space IDs
+  fromCash: number;
+  toCash: number;
+}
+
 // ─── GAME STATS TYPES ──────────────────────────────────────────────────────────
 
 export interface GameStats {
@@ -233,6 +243,8 @@ export interface GameState {
   gameOver: boolean;
   winner: Player | null;
   spectators: number[]; // Array of player IDs who are spectating
+  viewingPlayerId: number | null;
+  activeTab: string;
 }
 
 export interface GameActions {
@@ -258,6 +270,7 @@ export interface GameActions {
   _nextTurn: () => void;
   _openBuyModal: (p: Player, sp: Space) => void;
   _openBuildModal: (p: Player, sp: Space) => void;
+  _openViewModal: (sp: Space) => void;
   openBankruptcyFlow: () => void;
   closeBankruptcyFlow: () => void;
   resolveDebt: () => void;
@@ -266,6 +279,9 @@ export interface GameActions {
   spectateGame: (playerId: number) => void;
   leaveGame: (playerId: number) => void;
   endGame: (winner: Player) => void;
+  setViewingPlayerId: (id: number | null) => void;
+  setActiveTab: (tab: string) => void;
+  executeTrade: (offer: TradeOffer) => void;
 }
 
 export type GameStore = GameState & GameActions;

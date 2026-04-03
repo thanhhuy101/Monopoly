@@ -73,7 +73,7 @@ export default function ProfilePage() {
 
   const STATS: StatItem[] = [
     { label: 'Tài Sản Hiện Tại', value: user ? `${user.coins?.toLocaleString() || '0'}` : '0', icon: 'monetization_on' },
-    { label: 'Danh Hiệu', value: user?.displayName || 'ĐẠI GIA BẤT ĐỘNG SẢN' },
+    { label: 'Danh Hiệu', value: user?.displayName || 'THÀNH VIÊN DANH DỰ' },
   ];
 
   return (
@@ -120,7 +120,7 @@ export default function ProfilePage() {
           {/* RIGHT CONTENT */}
           <motion.div initial="hidden" animate="show" className="lg:col-span-8 flex flex-col gap-8">
             <motion.div variants={fadeUp(0)} className="flex justify-between items-baseline mb-2">
-              <h2 className="font-['Noto_Serif'] text-3xl text-[#f6be39] uppercase tracking-widest" style={{ textShadow: '0 0 8px rgba(246,190,57,0.4)' }}>Hồ Sơ Đại Gia</h2>
+              <h2 className="font-['Noto_Serif'] text-3xl text-[#f6be39] uppercase tracking-widest" style={{ textShadow: '0 0 8px rgba(246,190,57,0.4)' }}>Hồ Sơ Hội Viên</h2>
               <div className="h-0.5 grow mx-6 bg-[#4f4634]/30" />
             </motion.div>
 

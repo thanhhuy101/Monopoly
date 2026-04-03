@@ -23,7 +23,7 @@ export default function BottomNav() {
             key={item.href}
             onClick={() => navigate(item.href)}
             className={[
-              'flex flex-col items-center justify-center p-2 h-full w-1/4 transition-all',
+              'flex flex-col items-center justify-center p-2 h-full w-1/4 transition-all cursor-pointer',
               "font-['Barlow_Condensed'] text-xs font-bold uppercase tracking-wider",
               isActive
                 ? 'bg-[#d4a017] text-[#0e0e0e]'

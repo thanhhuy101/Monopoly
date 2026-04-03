@@ -178,6 +178,7 @@ export default function SignIn() {
           <div style={{ display:'flex', justifyContent:'center', gap:16, marginBottom:28 }}>
             {[{src:FB,alt:'Facebook'},{src:GG,alt:'Google'}].map(s => (
               <motion.button key={s.alt}
+                onClick={() => toast('Chức năng sẽ phát triển sau')}
                 whileHover={{ borderColor:'#f6be39' }} whileTap={{ scale:0.95 }}
                 style={{
                   width:48, height:48, display:'flex', alignItems:'center', justifyContent:'center',

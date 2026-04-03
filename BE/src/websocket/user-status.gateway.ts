@@ -37,7 +37,9 @@ export class UserStatusGateway implements OnGatewayConnection, OnGatewayDisconne
       // Extract JWT token from handshake
       const token = client.handshake.auth.token || client.handshake.headers.authorization?.replace('Bearer ', '');
       
-      if (token) {
+      const isValidToken = token && token !== 'undefined' && token !== 'null' && token !== '';
+      
+      if (isValidToken) {
         // Verify JWT token and get userId
         try {
           const decoded = this.jwtService.verifyToken(token);

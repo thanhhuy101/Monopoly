@@ -33,5 +33,5 @@ export class CreateRoomDto {
   @IsInt()
   @Min(500)
   @Max(5000)
-  startingMoney?: number = 1500;
+  startingMoney?: number = 1200;
 }

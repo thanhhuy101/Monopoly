@@ -314,7 +314,7 @@ function PropertyBuildings({ cellPos, scale }: { cellPos: [number, number, numbe
 // ─── Camera Controller (focus on current player) ────────────────────────────
 const DEFAULT_CAM_POS = new THREE.Vector3(0, 5, 0);
 const DEFAULT_CAM_TARGET = new THREE.Vector3(0, 0, 0);
-const LERP_SPEED = 0.045;
+const LERP_SPEED = 0.035;
 
 function CameraController({ cellPos }: { cellPos: [number, number, number][] }) {
   const camera = useThree(s => s.camera);

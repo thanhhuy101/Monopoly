@@ -3,14 +3,7 @@ import type { StateCreator } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { gameApi } from '../services/gameApi';
 import { PLAYER_SETUP, SPACES, CHANCE_CARDS, CHEST_CARDS } from '../data/gameData';
-import type { 
-  BackendGameState, 
-  Player, 
-  PlayerSetup,
-  GamePhase,
-  GameCard,
-  Space,
-} from '../types/game';
+import { BackendGameState, Player, PlayerSetup, GamePhase, GameCard, Space, TradeOffer } from '../types/game';
 import type { GameStore, GameState } from '../types/game';
 import type {
   RollDiceRequest,
@@ -43,7 +36,7 @@ function makeShuffledDeck(length: number): number[] {
   return shuffle(Array.from({ length }, (_, i) => i));
 }
 
-const STEP_MS = 180;
+const STEP_MS = 450;
 
 // Timer registry for API store
 const pendingTimers = new Set<ReturnType<typeof setTimeout>>();
@@ -69,7 +62,7 @@ const initialState = (setup?: PlayerSetup[]): GameState => {
   lastSetup = src;
   return {
     players: src.map((p, i): Player => ({
-      ...p, id: i, money: 1500, pos: 0,
+      ...p, id: i, money: 1200, pos: 0,
       bankrupt: false, inJail: false, jailTurns: 0, doubleCount: 0, isWalking: false,
       uid: `player-${i}`, username: p.name, position: 0, properties: [],
       jailStatus: { inJail: false, turns: 0 }, isCurrentTurn: i === 0,
@@ -87,6 +80,8 @@ const initialState = (setup?: PlayerSetup[]): GameState => {
     gameOver: false,
     winner: null,
     spectators: [],
+    viewingPlayerId: null,
+    activeTab: 'BÀN CỜ',
   };
 };
 
@@ -135,7 +130,7 @@ interface ApiGameStore extends GameStore {
   _openBuildModal: (p: Player, sp: Space) => void;
   // Trading logic validation
   validateTradeProposal: (fromPlayerId: number, toPlayerId: number, offeredProperties: string[], requestedAmount: number) => { valid: boolean; reason?: string };
-  executeTrade: (fromPlayerId: number, toPlayerId: number, offeredProperties: string[], requestedAmount: number) => boolean;
+  executeTrade: (offer: TradeOffer) => void;
 }
 
 const createApiGameStore: StateCreator<ApiGameStore> = (set, get) => ({
@@ -363,10 +358,10 @@ const createApiGameStore: StateCreator<ApiGameStore> = (set, get) => ({
         set({ phase: 'roll' });
         return;
       } else if (jailTurns >= 4) {
-        get()._mutPlayer(p.id, pl => ({ money: pl.money - 50, inJail: false, jailTurns: 0 }));
-        get()._log(`${p.emoji} Lần 4 bắt buộc trả 50₫ ra tù`);
-        get()._toast(`${p.emoji} Trả 50₫ ra tù`);
-        get()._floatMoney(p, '-50₫', '#ff5555');
+        get()._mutPlayer(p.id, pl => ({ money: pl.money - 200, inJail: false, jailTurns: 0 }));
+        get()._log(`${p.emoji} Lần 4 bắt buộc trả 200₫ ra tù`);
+        get()._toast(`${p.emoji} Trả 200₫ ra tù`);
+        get()._floatMoney(p, '-200₫', '#ff5555');
       } else {
         get()._mutPlayer(p.id, () => ({ jailTurns }));
         get()._toast(`${p.emoji} Vẫn trong tù (${jailTurns}/3)`);
@@ -475,8 +470,20 @@ const createApiGameStore: StateCreator<ApiGameStore> = (set, get) => ({
       if (ownerId === undefined) { get()._openBuyModal(p, sp); }
       else if (ownerId === p.id) { get()._log(`${p.emoji} Đất của mình`); get()._nextTurn(); }
       else {
-        const railCount = Object.keys(props).filter(k => props[Number(k)] === ownerId && SPACES[Number(k)].type === 'railroad').length;
-        const rent = sp.type === 'railroad' ? 50 * railCount : Math.max(25, Math.round((Math.random() < 0.5 ? 4 : 10) * 5));
+        const { props, players, dice } = get();
+        const diceTotal = dice[0] + dice[1];
+        
+        let rent = 0;
+        if (sp.type === 'railroad') {
+          const railCount = Object.keys(props).filter(k => props[Number(k)] === ownerId && SPACES[Number(k)].type === 'railroad').length;
+          const railroadRents = [0, 25, 50, 100, 200];
+          rent = railroadRents[railCount] || 25;
+        } else if (sp.type === 'utility') {
+          const utilityCount = Object.keys(props).filter(k => props[Number(k)] === ownerId && SPACES[Number(k)].type === 'utility').length;
+          const multiplier = utilityCount === 2 ? 10 : 4;
+          rent = multiplier * diceTotal;
+        }
+
         const owner = players[ownerId];
         get()._mutPlayer(p.id, pl => ({ money: pl.money - rent }));
         get()._mutPlayer(ownerId, pl => ({ money: pl.money + rent }));
@@ -653,6 +660,7 @@ const createApiGameStore: StateCreator<ApiGameStore> = (set, get) => ({
     const rentInfo = sp.rent ? `\nThuê cơ bản: ${sp.rent[0]}₫` : '';
     set({ phase: 'modal', modal: { icon: ico, title: sp.name,
       body: `Giá mua: ${sp.price}₫\nSố dư: ${p.money}₫${rentInfo}\n\n${canBuy ? 'Bạn có muốn mua không?' : '⚠️ Không đủ tiền!'}`,
+      playerId: p.id,
       buttons: canBuy
         ? [{ label: '✅ Mua Ngay', cls: 'btn-buy', action: 'buy',  spaceId: sp.id, playerId: p.id, price: sp.price },
            { label: 'Bỏ Qua',     cls: 'btn-pass', action: 'pass' }]
@@ -665,8 +673,14 @@ const createApiGameStore: StateCreator<ApiGameStore> = (set, get) => ({
     const label = h < 4 ? `🏠 Nhà ${h + 1}` : '🏨 Khách Sạn';
     set({ phase: 'modal', modal: { icon: '🔨', title: 'Xây Dựng',
       body: `${sp.name}\nHiện tại: ${h === 0 ? 'Trống' : h < 5 ? '🏠'.repeat(h) : '🏨'}\nXây: ${label}\nChi phí: ${cost}₫\nSố dư: ${p.money}₫`,
+      playerId: p.id,
       buttons: [{ label, cls: 'btn-buy', action: 'build', spaceId: sp.id, playerId: p.id, cost },
                 { label: 'Bỏ Qua', cls: 'btn-pass', action: 'pass' }] } });
+  },
+  _openViewModal(sp: Space) {
+    const ico = sp.type === 'prop' ? '🏘️' : sp.type === 'railroad' ? '🚂' : '⚡';
+    set({ phase: 'modal', modal: { icon: ico, title: sp.name, body: '', 
+      buttons: [{ label: 'Đóng', cls: 'btn-pass', action: 'pass', spaceId: sp.id }] } });
   },
 
   _nextTurnLocal() {
@@ -726,36 +740,33 @@ const createApiGameStore: StateCreator<ApiGameStore> = (set, get) => ({
     return { valid: true };
   },
   
-  executeTrade(fromPlayerId: number, toPlayerId: number, offeredProperties: string[], requestedAmount: number) {
-    const validation = get().validateTradeProposal(fromPlayerId, toPlayerId, offeredProperties, requestedAmount);
-    if (!validation.valid) {
-      get()._toast(`❌ ${validation.reason}`);
-      return false;
-    }
+  executeTrade(offer: TradeOffer) {
+    const { players, props } = get();
+    const fromP = players[offer.fromId];
+    const toP   = players[offer.toId];
+    if (!fromP || !toP) return;
+
+    // 1. Move money
+    get()._mutPlayer(offer.fromId, p => ({ money: p.money - offer.fromCash + offer.toCash }));
+    get()._mutPlayer(offer.toId,   p => ({ money: p.money + offer.fromCash - offer.toCash }));
+
+    // 2. Swap properties in store 'props'
+    const nextProps = { ...props };
+    offer.fromProps.forEach((id: number) => { nextProps[id] = offer.toId; });
+    offer.toProps.forEach((id: number) => { nextProps[id] = offer.fromId; });
+    set({ props: nextProps });
+
+    // 3. Log
+    const fromDesc = offer.fromProps.length > 0 ? `${offer.fromProps.length} BĐS` : '';
+    const toDesc   = offer.toProps.length > 0 ? `${offer.toProps.length} BĐS` : '';
+    const fromMoneyDesc = offer.fromCash > 0 ? `$${offer.fromCash}` : '';
+    const toMoneyDesc   = offer.toCash > 0 ? `$${offer.toCash}` : '';
     
-    const { players } = get();
-    const fromPlayer = players[fromPlayerId];
-    const toPlayer = players[toPlayerId];
+    get()._log(`🤝 GIAO DỊCH: ${fromP.name} ↔️ ${toP.name}`);
+    if (fromDesc || fromMoneyDesc) get()._log(`  📤 ${fromP.name} đưa: ${fromDesc} ${fromMoneyDesc}`);
+    if (toDesc || toMoneyDesc)     get()._log(`  📥 ${toP.name} đưa: ${toDesc} ${toMoneyDesc}`);
     
-    // Transfer properties
-    set(s => {
-      const newProps = { ...s.props };
-      offeredProperties.forEach(propId => {
-        newProps[parseInt(propId)] = toPlayerId;
-      });
-      return { props: newProps };
-    });
-    
-    // Transfer money
-    get()._mutPlayer(fromPlayerId, p => ({ money: p.money + requestedAmount }));
-    get()._mutPlayer(toPlayerId, p => ({ money: p.money - requestedAmount }));
-    
-    // Log the trade
-    const propNames = offeredProperties.map(id => SPACES[parseInt(id)].name).join(', ');
-    get()._log(`${fromPlayer.emoji} ↔️ ${toPlayer.emoji} Trao đổi: ${propNames} cho ${requestedAmount}₫`);
-    get()._toast(`✅ Trao đổi thành công!`);
-    
-    return true;
+    get()._toast('Giao dịch thành công! ✅');
   },
   testBankruptcy() {
     const { players, cur } = get();
@@ -791,6 +802,14 @@ const createApiGameStore: StateCreator<ApiGameStore> = (set, get) => ({
   endGame(winner: Player) {
     set({ gameOver: true, winner, phase: 'gameover' });
     get()._log(`🏆 ${winner.name} chiến thắng!`);
+  },
+
+  setViewingPlayerId(id: number | null) {
+    set({ viewingPlayerId: id });
+  },
+
+  setActiveTab(tab: string) {
+    set({ activeTab: tab });
   },
   
   // API specific state
@@ -1198,6 +1217,8 @@ const createApiGameStore: StateCreator<ApiGameStore> = (set, get) => ({
       gameOver: phase === 'finished',
       winner: backendState.winner !== undefined ? players.find(p => p.id === backendState.winner) || null : null,
       spectators: [],
+      viewingPlayerId: get()?.viewingPlayerId ?? null,
+      activeTab: get()?.activeTab ?? 'BÀN CỜ',
     };
   },
   
@@ -1243,6 +1264,8 @@ export const useApiGameStore = create<ApiGameStore>()(
           gameId: state.gameId,
           isOnline: state.isOnline,
           bankruptcyFlow: state.bankruptcyFlow,
+          viewingPlayerId: state.viewingPlayerId,
+          activeTab: state.activeTab,
         };
       },
     }

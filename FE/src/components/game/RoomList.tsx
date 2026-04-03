@@ -214,7 +214,7 @@ export default function RoomList() {
         maxPlayers: 4, // Default value
         turnTimeLimit: 30, // Default value
         autoRoll: false, // Default value
-        startingMoney: 1500, // Default value
+        startingMoney: 1200, // Default value
       };
 
       const createdRoom = await roomApi.createRoom(apiRoomData);
@@ -279,7 +279,7 @@ export default function RoomList() {
           {/* ── Back Button ── */}
           <button 
             onClick={() => navigate('/home')}
-            className="mb-8 flex items-center gap-2 text-[#d3c5ae] hover:text-[#f6be39] transition-colors duration-200"
+            className="mb-8 flex items-center gap-2 text-[#d3c5ae] hover:text-[#f6be39] transition-colors duration-200 cursor-pointer"
           >
             <span className="material-symbols-outlined">arrow_back</span>
             <span className="font-['Barlow_Condensed'] font-bold uppercase tracking-[0.2em]">Quay Lại</span>
@@ -333,7 +333,7 @@ export default function RoomList() {
             <div className="flex gap-2 shrink-0">
               <button
                 onClick={() => setFilter('all')}
-                className={`px-4 py-2 text-sm font-['Barlow_Condensed'] font-bold uppercase tracking-wider rounded transition-all duration-200 ${
+                className={`px-4 py-2 text-sm font-['Barlow_Condensed'] font-bold uppercase tracking-wider rounded transition-all duration-200 cursor-pointer ${
                   filter === 'all'
                     ? 'bg-[#d4a017] text-[#261a00]'
                     : 'bg-transparent border border-[#666] text-[#d3c5ae] hover:border-[#d3c5ae]'
@@ -343,7 +343,7 @@ export default function RoomList() {
               </button>
               <button
                 onClick={() => setFilter('public')}
-                className={`px-4 py-2 text-sm font-['Barlow_Condensed'] font-bold uppercase tracking-wider rounded transition-all duration-200 ${
+                className={`px-4 py-2 text-sm font-['Barlow_Condensed'] font-bold uppercase tracking-wider rounded transition-all duration-200 cursor-pointer ${
                   filter === 'public'
                     ? 'bg-[#d4a017] text-[#261a00]'
                     : 'bg-transparent border border-[#666] text-[#d3c5ae] hover:border-[#d3c5ae]'
@@ -354,7 +354,7 @@ export default function RoomList() {
               </button>
               <button
                 onClick={() => setFilter('private')}
-                className={`px-4 py-2 text-sm font-['Barlow_Condensed'] font-bold uppercase tracking-wider rounded transition-all duration-200 ${
+                className={`px-4 py-2 text-sm font-['Barlow_Condensed'] font-bold uppercase tracking-wider rounded transition-all duration-200 cursor-pointer ${
                   filter === 'private'
                     ? 'bg-[#d4a017] text-[#261a00]'
                     : 'bg-transparent border border-[#666] text-[#d3c5ae] hover:border-[#d3c5ae]'
@@ -366,7 +366,7 @@ export default function RoomList() {
               <button
                 onClick={loadRooms}
                 disabled={loading}
-                className={`px-4 py-2 text-sm font-['Barlow_Condensed'] font-bold uppercase tracking-wider rounded transition-all duration-200 ${
+                className={`px-4 py-2 text-sm font-['Barlow_Condensed'] font-bold uppercase tracking-wider rounded transition-all duration-200 cursor-pointer ${
                   loading
                     ? 'bg-[#353534] text-[#e5e2e1] opacity-40 cursor-not-allowed'
                     : 'bg-transparent border border-[#666] text-[#d3c5ae] hover:border-[#d3c5ae] hover:text-[#f6be39]'
@@ -422,7 +422,7 @@ export default function RoomList() {
                   <button
                     onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
                     disabled={!pagination.hasPrev}
-                    className={`px-4 py-2 font-['Barlow_Condensed'] font-bold uppercase text-sm tracking-wider rounded transition-all duration-200 ${
+                    className={`px-4 py-2 font-['Barlow_Condensed'] font-bold uppercase text-sm tracking-wider rounded transition-all duration-200 cursor-pointer ${
                       pagination.hasPrev
                         ? 'bg-[#d4a017] text-[#261a00] hover:bg-[#f6be39] cursor-pointer'
                         : 'bg-[#353534] text-[#e5e2e1] opacity-40 cursor-not-allowed'
@@ -449,7 +449,7 @@ export default function RoomList() {
                         <button
                           key={pageNum}
                           onClick={() => setPagination(prev => ({ ...prev, page: pageNum }))}
-                          className={`w-10 h-10 font-['Barlow_Condensed'] font-bold text-sm tracking-wider rounded transition-all duration-200 ${
+                          className={`w-10 h-10 font-['Barlow_Condensed'] font-bold text-sm tracking-wider rounded transition-all duration-200 cursor-pointer ${
                             pageNum === pagination.page
                               ? 'bg-[#d4a017] text-[#261a00]'
                               : 'bg-transparent border border-[#666] text-[#d3c5ae] hover:border-[#d3c5ae] cursor-pointer'
@@ -464,7 +464,7 @@ export default function RoomList() {
                   <button
                     onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
                     disabled={!pagination.hasNext}
-                    className={`px-4 py-2 font-['Barlow_Condensed'] font-bold uppercase text-sm tracking-wider rounded transition-all duration-200 ${
+                    className={`px-4 py-2 font-['Barlow_Condensed'] font-bold uppercase text-sm tracking-wider rounded transition-all duration-200 cursor-pointer ${
                       pagination.hasNext
                         ? 'bg-[#d4a017] text-[#261a00] hover:bg-[#f6be39] cursor-pointer'
                         : 'bg-[#353534] text-[#e5e2e1] opacity-40 cursor-not-allowed'

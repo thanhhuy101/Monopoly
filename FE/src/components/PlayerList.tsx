@@ -1,19 +1,21 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useGameStore } from '../store/gameStore';
+import { useAutoGameStore } from '../hooks/useGameStore';
+import { useAuthStore } from '../store/authStore';
 import type { Player } from '../types/game';
 
 interface CardProps { player: Player; isActive: boolean; index: number }
 
-function PlayerCard({ player, isActive, index }: CardProps) {
+function PlayerCard({ player, isActive, isMe, onClick }: { player: Player; isActive: boolean; isMe: boolean; onClick: () => void }) {
   return (
     <motion.div
       layout
       initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
       transition={{ type: 'spring', stiffness: 260, damping: 22 }}
-      className={`flex items-center gap-2.5 px-3 py-2 mb-1 border transition-all
+      onClick={onClick}
+      className={`flex items-center gap-2.5 px-3 py-2 mb-1 border transition-all cursor-pointer group
         ${isActive
           ? 'bg-[#f5c842]/8 border-[#f5c842]/40'
-          : 'bg-[#1a1a1a] border-[#2a2a2a]'
+          : 'bg-[#1a1a1a] border-[#2a2a2a] hover:border-[#f5c842]/30 hover:bg-[#1a1a1a]/80'
         }
         ${player.bankrupt ? 'opacity-30' : ''}
       `}>
@@ -31,8 +33,7 @@ function PlayerCard({ player, isActive, index }: CardProps) {
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-1.5">
           <span className="font-['Barlow_Condensed'] font-bold text-xs text-white uppercase tracking-wider truncate">
-            {!player.isBot && index === 0 ? 'BẠN' : player.name}
-            {!player.isBot && index === 0 && <span className="text-[#f5c842]"> (ĐẠI GIA)</span>}
+            {isMe ? 'BẠN' : player.name}
             {player.isBot && <span className="text-[#7a8fbb]"> 🤖</span>}
           </span>
         </div>
@@ -62,14 +63,31 @@ function PlayerCard({ player, isActive, index }: CardProps) {
 }
 
 export default function PlayerList() {
-  const players = useGameStore((s: { players: Player[]; cur: number }) => s.players);
-  const cur = useGameStore((s: { players: Player[]; cur: number }) => s.cur);
+  const store = useAutoGameStore();
+  const { user } = useAuthStore();
+  
+  const players = store.players;
+  const cur = store.cur;
+
+  // Identify "me"
+  const me = players.find(p => p.uid === user?.id) || players.find(p => !p.isBot) || players[0];
+
+  const handlePlayerClick = (playerId: number) => {
+    store.setViewingPlayerId(playerId);
+    store.setActiveTab('TÀI SẢN');
+  };
 
   return (
     <div>
       <AnimatePresence>
         {players.map((p, i) => (
-          <PlayerCard key={p.id} player={p} isActive={i === cur && !p.bankrupt} index={i} />
+          <PlayerCard 
+            key={p.id} 
+            player={p} 
+            isActive={i === cur && !p.bankrupt} 
+            isMe={p.id === me.id}
+            onClick={() => handlePlayerClick(p.id)}
+          />
         ))}
       </AnimatePresence>
     </div>

@@ -32,7 +32,7 @@ export class RoomsService {
       settings: {
         turnTimeLimit: createRoomDto.turnTimeLimit || 30,
         autoRoll: createRoomDto.autoRoll || false,
-        startingMoney: createRoomDto.startingMoney || 1500,
+        startingMoney: createRoomDto.startingMoney || 1200,
       },
     };
 

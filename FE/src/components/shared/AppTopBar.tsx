@@ -22,7 +22,7 @@ export default function AppTopBar({
 
       <div className="flex items-center gap-4">
         {showBack ? (
-          <button onClick={() => navigate(-1)} className="text-[#f6be39] hover:bg-[#353534] p-1 transition-colors">
+          <button onClick={() => navigate(-1)} className="text-[#f6be39] hover:bg-[#353534] p-1 transition-colors cursor-pointer">
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
         ) : (
@@ -38,7 +38,7 @@ export default function AppTopBar({
 
       <div className="flex items-center gap-4">
         {showWallet && (
-          <button className="hover:bg-[#353534] transition-colors p-2 text-[#f6be39]">
+          <button className="hover:bg-[#353534] transition-colors p-2 text-[#f6be39] cursor-pointer">
             <span className="material-symbols-outlined">account_balance_wallet</span>
           </button>
         )}

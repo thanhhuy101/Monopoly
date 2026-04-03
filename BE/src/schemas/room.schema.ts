@@ -37,12 +37,12 @@ export class GameRoom {
     type: {
       turnTimeLimit: { type: Number, default: 30 },
       autoRoll: { type: Boolean, default: false },
-      startingMoney: { type: Number, default: 1500 }
+      startingMoney: { type: Number, default: 1200 }
     },
     default: {
       turnTimeLimit: 30,
       autoRoll: false,
-      startingMoney: 1500
+      startingMoney: 1200
     }
   })
   settings: {

@@ -61,7 +61,7 @@ export default function HeroSection() {
         <motion.button
           onClick={() => navigate('/setup')}
           whileHover={{ filter: 'brightness(1.12)' }} whileTap={{ scale: 0.96 }}
-          className="w-full py-5 flex items-center justify-center gap-3 bg-linear-to-br from-[#f6be39] to-[#d4a017] shadow-[0_10px_30px_rgba(212,160,23,0.3)] transition-all">
+          className="w-full py-5 flex items-center justify-center gap-3 bg-linear-to-br from-[#f6be39] to-[#d4a017] shadow-[0_10px_30px_rgba(212,160,23,0.3)] transition-all cursor-pointer">
           <span className="material-symbols-outlined text-[#402d00] text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>token</span>
           <span className="font-['Barlow_Condensed'] text-3xl font-black text-[#402d00] tracking-widest uppercase">CHƠI NGAY</span>
         </motion.button>
@@ -70,7 +70,7 @@ export default function HeroSection() {
           {MODE_BUTTONS.map(btn => (
             <motion.button key={btn.label} onClick={() => navigate(btn.route)}
               whileHover={{ backgroundColor: '#2a2a2a', borderColor: '#f6be39' }} whileTap={{ scale: 0.96 }}
-              className="border-2 border-[#d4a017]/50 bg-[#1c1b1b] py-4 px-2 transition-all flex flex-col items-center justify-center gap-1 group">
+              className="border-2 border-[#d4a017]/50 bg-[#1c1b1b] py-4 px-2 transition-all flex flex-col items-center justify-center gap-1 group cursor-pointer">
               <span className="material-symbols-outlined text-[#f6be39] group-hover:scale-110 transition-transform">{btn.icon}</span>
               <span className="font-['Barlow_Condensed'] text-xs font-bold text-[#e5e2e1] uppercase tracking-tighter">{btn.label}</span>
             </motion.button>

@@ -101,9 +101,10 @@ interface Props {
   onConfirm:  () => void;
   onSave?:    () => void;
   onClose?:   () => void;
+  canConfirm?: boolean;
 }
 
-export default function CardDetail({ card, type, onConfirm, onSave, onClose }: Props) {
+export default function CardDetail({ card, type, onConfirm, onSave, onClose, canConfirm = true }: Props) {
   const cfg = TYPE_CONFIG[type];
   const desc = buildDescription(card);
 
@@ -294,24 +295,27 @@ export default function CardDetail({ card, type, onConfirm, onSave, onClose }: P
               <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20, position: 'relative', zIndex: 1 }}>
                 {/* Confirm */}
                 <motion.button
-                  onClick={onConfirm}
-                  whileHover={{ filter: 'brightness(1.1)' }}
-                  whileTap={{ scale: 0.96 }}
+                  onClick={canConfirm ? onConfirm : undefined}
+                  whileHover={canConfirm ? { filter: 'brightness(1.1)' } : {}}
+                  whileTap={canConfirm ? { scale: 0.96 } : {}}
                   style={{
                     width:      '100%',
                     padding:    '14px 24px',
-                    background: 'linear-gradient(135deg, #f6be39 0%, #d4a017 100%)',
-                    color:      '#261a00',
+                    background: canConfirm 
+                      ? 'linear-gradient(135deg, #f6be39 0%, #d4a017 100%)'
+                      : '#2a2a2a',
+                    color:      canConfirm ? '#261a00' : '#7a8fbb',
                     border:     'none',
-                    cursor:     'pointer',
+                    cursor:     canConfirm ? 'pointer' : 'not-allowed',
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize:   16,
                     letterSpacing: 5,
                     textTransform: 'uppercase',
+                    opacity: canConfirm ? 1 : 0.7,
                   }}
                 >
-                  XÁC NHẬN
+                  {canConfirm ? 'XÁC NHẬN' : 'ĐỢI NGƯỜI CHƠI...'}
                 </motion.button>
 
                 {/* Save (optional) */}

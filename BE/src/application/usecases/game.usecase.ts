@@ -25,7 +25,7 @@ export class GameUseCase implements IGameUseCase {
     const settings: GameSettings = {
       turnTimeLimit: 60,
       autoRoll: false,
-      startingMoney: 1500
+      startingMoney: 1200
     };
     const board: BoardState = {
       properties: {},

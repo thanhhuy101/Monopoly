@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useGameStore } from '../../store/gameStore';
-import type { GameStore } from '../../store/gameStore';
+import { useAutoGameStore } from '../../hooks/useGameStore';
+import { useAuthStore } from '../../store/authStore';
 import CardDetail from './CardDetail';
 
 /* ── Shared sizes ─────────────────────────────────────────── */
@@ -128,10 +128,17 @@ function CardBack() {
 }
 
 /* ── Inner content: manages reveal → detail transition ────── */
-function RevealContent({ reveal }: { reveal: NonNullable<GameStore['cardReveal']> }) {
-  const dismiss = useGameStore((s: GameStore) => s.dismissCardReveal);
+function RevealContent({ reveal }: { reveal: NonNullable<ReturnType<typeof useAutoGameStore>['cardReveal']> }) {
+  const store = useAutoGameStore();
+  const dismiss = store.dismissCardReveal;
+  const players = store.players;
+  const { user } = useAuthStore();
   const [phase, setPhase] = useState<'card' | 'detail'>('card');
   const [hovered, setHovered] = useState(false);
+
+  // Identify local player
+  const me = players.find(p => p.uid === user?.id) || players.find(p => !p.isBot) || players[0];
+  const isMyTurn = reveal.playerId === me.id;
 
   if (phase === 'detail') {
     return (
@@ -139,6 +146,7 @@ function RevealContent({ reveal }: { reveal: NonNullable<GameStore['cardReveal']
         card={reveal.card}
         type={reveal.type}
         onConfirm={dismiss}
+        canConfirm={isMyTurn}
       />
     );
   }
@@ -169,11 +177,11 @@ function RevealContent({ reveal }: { reveal: NonNullable<GameStore['cardReveal']
         style={{
           transformStyle: 'preserve-3d',
           position: 'relative',
-          cursor: 'pointer',
+          cursor: isMyTurn ? 'pointer' : 'not-allowed',
         }}
-        onMouseEnter={() => setHovered(true)}
+        onMouseEnter={() => isMyTurn && setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        onClick={() => setPhase('detail')}
+        onClick={() => isMyTurn && setPhase('detail')}
       >
         {/* Front face */}
         <div style={{ backfaceVisibility: 'hidden', position: 'relative' }}>
@@ -209,7 +217,7 @@ function RevealContent({ reveal }: { reveal: NonNullable<GameStore['cardReveal']
                   textTransform: 'uppercase',
                   textShadow: '0 0 10px rgba(246,190,57,0.5)',
                 }}>
-                  RÚT THẺ
+                  {isMyTurn ? 'RÚT THẺ' : 'ĐỢI...'}
                 </span>
               </motion.div>
             )}
@@ -265,7 +273,7 @@ function RevealContent({ reveal }: { reveal: NonNullable<GameStore['cardReveal']
 
 /* ── Main overlay ─────────────────────────────────────────── */
 export default function CardRevealOverlay() {
-  const reveal = useGameStore((s: GameStore) => s.cardReveal);
+  const reveal = useAutoGameStore().cardReveal;
 
   return (
     <AnimatePresence>

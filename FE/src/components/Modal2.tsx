@@ -11,7 +11,8 @@
  */
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { useGameStore } from '../store/gameStore';
+import { useAutoGameStore } from '../hooks/useGameStore';
+import { useAuthStore } from '../store/authStore';
 import { SPACES, COLOR_HEX } from '../data/gameData';
 import type { ModalButton, ModalConfig } from '../types/game';
 
@@ -24,10 +25,11 @@ function getSpaceId(modal: ModalConfig): number | null {
   return null;
 }
 
-function getAction(modal: ModalConfig): 'buy' | 'build' | 'other' {
+function getAction(modal: ModalConfig): 'buy' | 'build' | 'view' | 'other' {
   const actions = modal.buttons.map(b => b.action);
   if (actions.includes('buy'))   return 'buy';
   if (actions.includes('build')) return 'build';
+  if (actions.includes('pass') && getSpaceId(modal) !== null) return 'view';
   return 'other';
 }
 
@@ -118,8 +120,9 @@ function DeedCard({ modal, spaceId }: { modal: ModalConfig; spaceId: number }) {
   const price        = sp.price ?? 0;
   const houseCost    = 100;
   const mortgageVal  = Math.round(price / 2);
-  const handleAction = useGameStore(s => s.handleModalAction);
-  const houses       = useGameStore(s => s.houses);
+  const store        = useAutoGameStore();
+  const handleAction = store.handleModalAction;
+  const houses       = store.houses;
   const h            = houses[spaceId] ?? 0;
 
   const buyBtn  = modal.buttons.find(b => b.action === 'buy');
@@ -261,7 +264,13 @@ function RailroadCard({ modal, spaceId }: { modal: ModalConfig; spaceId: number 
   const sp           = SPACES[spaceId];
   const price        = sp.price ?? 0;
   const mortgageVal  = Math.round(price / 2);
-  const handleAction = useGameStore(s => s.handleModalAction);
+  const store        = useAutoGameStore();
+  const handleAction = store.handleModalAction;
+
+  const ownerId      = store.props[spaceId];
+  const railCount    = Object.keys(store.props)
+    .filter(k => store.props[Number(k)] === ownerId && SPACES[Number(k)].type === 'railroad')
+    .length;
 
   const buyBtn  = modal.buttons.find(b => b.action === 'buy');
   const passBtn = modal.buttons.find(b => b.action === 'pass');
@@ -300,10 +309,10 @@ function RailroadCard({ modal, spaceId }: { modal: ModalConfig; spaceId: number 
 
         {/* Rent table */}
         <div style={{ marginBottom: 8 }}>
-          <RentRow label="Sở hữu 1 nhà ga"  value="$25" sparkles={1} />
-          <RentRow label="Sở hữu 2 nhà ga"  value="$50" sparkles={2} />
-          <RentRow label="Sở hữu 3 nhà ga"  value="$100" sparkles={3} />
-          <RentRow label="Sở hữu 4 nhà ga"  value="$200" highlight />
+          <RentRow label="Sở hữu 1 nhà ga"  value="$25" sparkles={1} active={railCount === 1} />
+          <RentRow label="Sở hữu 2 nhà ga"  value="$50" sparkles={2} active={railCount === 2} />
+          <RentRow label="Sở hữu 3 nhà ga"  value="$100" sparkles={3} active={railCount === 3} />
+          <RentRow label="Sở hữu 4 nhà ga"  value="$200" highlight active={railCount === 4} />
         </div>
 
         {/* Stats */}
@@ -358,7 +367,13 @@ function UtilityCard({ modal, spaceId }: { modal: ModalConfig; spaceId: number }
   const sp           = SPACES[spaceId];
   const price        = sp.price ?? 0;
   const mortgageVal  = Math.round(price / 2);
-  const handleAction = useGameStore(s => s.handleModalAction);
+  const store        = useAutoGameStore();
+  const handleAction = store.handleModalAction;
+
+  const ownerId      = store.props[spaceId];
+  const utilCount    = Object.keys(store.props)
+    .filter(k => store.props[Number(k)] === ownerId && SPACES[Number(k)].type === 'utility')
+    .length;
 
   const buyBtn  = modal.buttons.find(b => b.action === 'buy');
   const passBtn = modal.buttons.find(b => b.action === 'pass');
@@ -397,8 +412,8 @@ function UtilityCard({ modal, spaceId }: { modal: ModalConfig; spaceId: number }
 
         {/* Rent rules */}
         <div style={{ marginBottom: 8 }}>
-          <RentRow label="Sở hữu 1 tiện ích" value="4× 🎲" sparkles={1} />
-          <RentRow label="Sở hữu 2 tiện ích" value="10× 🎲" highlight />
+          <RentRow label="Sở hữu 1 tiện ích" value="4× 🎲" sparkles={1} active={utilCount === 1} />
+          <RentRow label="Sở hữu 2 tiện ích" value="10× 🎲" highlight  active={utilCount === 2} />
         </div>
 
         <p style={{ fontSize: 10, letterSpacing: 1, fontStyle: 'italic', opacity: 0.5, textAlign: 'center', marginTop: 12, lineHeight: 1.6, fontFamily: "'Barlow Condensed', sans-serif" }}>
@@ -454,10 +469,11 @@ function UtilityCard({ modal, spaceId }: { modal: ModalConfig; spaceId: number }
 
 // ─── BUILD CARD ───────────────────────────────────────────────────────────────
 function BuildCard({ modal, spaceId }: { modal: ModalConfig; spaceId: number }) {
+  const store        = useAutoGameStore();
   const sp           = SPACES[spaceId];
   const colorHex     = sp.color ? COLOR_HEX[sp.color] : '#555';
-  const handleAction = useGameStore(s => s.handleModalAction);
-  const houses       = useGameStore(s => s.houses);
+  const handleAction = store.handleModalAction;
+  const houses       = store.houses;
   const h            = houses[spaceId] ?? 0;
   const cost         = h < 4 ? 100 : 200;
   const buildBtn     = modal.buttons.find(b => b.action === 'build');
@@ -545,7 +561,8 @@ function BuildCard({ modal, spaceId }: { modal: ModalConfig; spaceId: number }) 
 
 // ─── GENERIC CARD (win, jail, tax, cards…) ────────────────────────────────────
 function GenericCard({ modal }: { modal: ModalConfig }) {
-  const handleAction = useGameStore(s => s.handleModalAction);
+  const store        = useAutoGameStore();
+  const handleAction = store.handleModalAction;
   return (
     <div style={{
       width: '100%', maxWidth: 360,
@@ -614,7 +631,19 @@ function injectCSS() {
 export default function Modal2() {
   injectCSS();
 
-  const modal = useGameStore(s => s.modal);
+  const store = useAutoGameStore();
+  const modal = store.modal;
+  const players = store.players;
+  const { user } = useAuthStore();
+
+  // Identify local player
+  const me = players.find(p => p.uid === user?.id) || players.find(p => !p.isBot) || players[0];
+
+  // If modal has a playerId and it's NOT me, don't show it (User request)
+  // This applies to 'buy' and 'build' property modals
+  if (modal && modal.playerId !== undefined && modal.playerId !== me.id) {
+    return null;
+  }
 
   const spaceId = modal ? getSpaceId(modal) : null;
   const action  = modal ? getAction(modal)  : 'other';
@@ -645,7 +674,7 @@ export default function Modal2() {
           >
             {/* Close button */}
             <button
-              onClick={() => useGameStore.getState().handleModalAction(
+              onClick={() => store.handleModalAction(
                 modal.buttons.find(b => b.action === 'pass') ?? modal.buttons[modal.buttons.length - 1]
               )}
               style={{
@@ -661,11 +690,11 @@ export default function Modal2() {
             </button>
 
             {/* Card selection */}
-            {spType === 'prop' && action === 'buy'   && <DeedCard  modal={modal} spaceId={spaceId!} />}
+            {spType === 'prop' && (action === 'buy' || action === 'view') && <DeedCard  modal={modal} spaceId={spaceId!} />}
             {spType === 'prop' && action === 'build' && <BuildCard modal={modal} spaceId={spaceId!} />}
-            {spType === 'railroad' && action === 'buy' && <RailroadCard modal={modal} spaceId={spaceId!} />}
-            {spType === 'utility'  && action === 'buy' && <UtilityCard  modal={modal} spaceId={spaceId!} />}
-            {(!isProp || action === 'other') && <GenericCard modal={modal} />}
+            {spType === 'railroad' && (action === 'buy' || action === 'view') && <RailroadCard modal={modal} spaceId={spaceId!} />}
+            {spType === 'utility'  && (action === 'buy' || action === 'view') && <UtilityCard  modal={modal} spaceId={spaceId!} />}
+            {(!isProp || (action === 'other')) && <GenericCard modal={modal} />}
           </motion.div>
         </motion.div>
       )}

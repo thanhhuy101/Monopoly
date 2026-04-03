@@ -30,7 +30,7 @@ export default function BankruptModal({ onLiquidate, onTrade, onClose }: Bankrup
       <style>{GLOBAL_STYLE}</style>
 
       {/* Overlay */}
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#0e0e0e]/90 backdrop-blur-md">
+      <div className="fixed inset-0 z-100 flex items-center justify-center p-6 bg-[#0e0e0e]/90 backdrop-blur-md">
 
         {/* Decorative background images */}
         <div className="absolute top-10 right-10 w-64 h-64 opacity-20 hidden lg:block pointer-events-none">
@@ -49,7 +49,7 @@ export default function BankruptModal({ onLiquidate, onTrade, onClose }: Bankrup
         </div>
 
         {/* Modal Card */}
-        <div className="relative w-full max-w-2xl bg-[#0e0e0e] border-[4px] border-[#d4a017] gold-bevel overflow-hidden">
+        <div className="relative w-full max-w-2xl bg-[#0e0e0e] border-4 border-[#d4a017] gold-bevel overflow-hidden">
 
           {/* Indochine dot pattern */}
           <div className="absolute inset-0 indochine-pattern pointer-events-none" />
@@ -98,7 +98,7 @@ export default function BankruptModal({ onLiquidate, onTrade, onClose }: Bankrup
               <button
                 onClick={onLiquidate}
                 className="relative flex items-center justify-center px-8 py-5
-                  bg-gradient-to-br from-[#f6be39] to-[#d4a017]
+                  bg-linear-to-br from-[#f6be39] to-[#d4a017]
                   hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer border-0"
               >
                 <span className="font-['Barlow_Condensed'] text-[#261a00] font-black text-xl uppercase tracking-widest">

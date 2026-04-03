@@ -41,7 +41,7 @@ function PlayerSlotCard({ slot, index }: { slot: PlayerSlot; index: number }) {
           <div className="flex border border-[#d4a017]/40 overflow-hidden">
             <button
               onClick={() => setBot(index, true)}
-              className={`px-3 py-1.5 font-['Barlow_Condensed'] font-bold text-xs uppercase tracking-wider transition-all
+              className={`px-3 py-1.5 font-['Barlow_Condensed'] font-bold text-xs uppercase tracking-wider transition-all cursor-pointer
                 ${slot.isBot
                   ? 'bg-[#d4a017] text-[#261a00]'
                   : 'bg-[#111] text-[#7a8fbb] hover:bg-[#2a2a2a]'
@@ -50,7 +50,7 @@ function PlayerSlotCard({ slot, index }: { slot: PlayerSlot; index: number }) {
             </button>
             <button
               onClick={() => setBot(index, false)}
-              className={`px-3 py-1.5 font-['Barlow_Condensed'] font-bold text-xs uppercase tracking-wider transition-all
+              className={`px-3 py-1.5 font-['Barlow_Condensed'] font-bold text-xs uppercase tracking-wider transition-all cursor-pointer
                 ${!slot.isBot
                   ? 'bg-[#d4a017] text-[#261a00]'
                   : 'bg-[#111] text-[#7a8fbb] hover:bg-[#2a2a2a]'
@@ -63,7 +63,7 @@ function PlayerSlotCard({ slot, index }: { slot: PlayerSlot; index: number }) {
         {!isHuman && (
           <button
             onClick={() => setEnabled(index, !slot.enabled)}
-            className={`w-8 h-8 flex items-center justify-center border transition-all
+            className={`w-8 h-8 flex items-center justify-center border transition-all cursor-pointer
               ${slot.enabled
                 ? 'border-[#e74c3c]/50 text-[#e74c3c] hover:bg-[#e74c3c]/10'
                 : 'border-[#39ff85]/50 text-[#39ff85] hover:bg-[#39ff85]/10'
@@ -92,7 +92,7 @@ export default function GameSetupPage() {
       <motion.button
         initial={{ opacity: 0 }} animate={{ opacity: 1 }}
         onClick={() => navigate('/home')}
-        className="absolute top-6 left-6 flex items-center gap-2 text-[#d4a017] font-['Barlow_Condensed'] text-sm uppercase tracking-widest hover:opacity-80 transition-opacity">
+        className="absolute top-6 left-6 flex items-center gap-2 text-[#d4a017] font-['Barlow_Condensed'] text-sm uppercase tracking-widest hover:opacity-80 transition-opacity cursor-pointer">
         <span className="material-symbols-outlined text-base">arrow_back</span>
         QUAY LẠI
       </motion.button>

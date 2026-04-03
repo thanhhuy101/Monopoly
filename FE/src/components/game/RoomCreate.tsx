@@ -34,7 +34,7 @@ export default function RoomCreate({ onClose, onCreateRoom }: RoomCreateProps) {
     maxPlayers: 4,
     turnTimeLimit: 30,
     autoRoll: false,
-    startingMoney: 1500,
+    startingMoney: 1200,
   });
   
   const [loading, setLoading] = useState(false);
@@ -82,7 +82,7 @@ export default function RoomCreate({ onClose, onCreateRoom }: RoomCreateProps) {
             </h2>
             <button
               onClick={onClose}
-              className="text-[#d3c5ae] hover:text-[#f6be39] transition-colors"
+              className="text-[#d3c5ae] hover:text-[#f6be39] transition-colors cursor-pointer"
             >
               <span className="material-symbols-outlined text-2xl">close</span>
             </button>
@@ -118,7 +118,7 @@ export default function RoomCreate({ onClose, onCreateRoom }: RoomCreateProps) {
                     name="roomType"
                     checked={!formData.isPrivate}
                     onChange={() => handleInputChange('isPrivate', false)}
-                    className="mr-2"
+                    className="mr-2 cursor-pointer"
                   />
                   <span className="text-[#e5e2e1]">Public</span>
                 </label>
@@ -128,7 +128,7 @@ export default function RoomCreate({ onClose, onCreateRoom }: RoomCreateProps) {
                     name="roomType"
                     checked={formData.isPrivate}
                     onChange={() => handleInputChange('isPrivate', true)}
-                    className="mr-2"
+                    className="mr-2 cursor-pointer"
                   />
                   <span className="text-[#e5e2e1]">Private</span>
                 </label>
@@ -202,6 +202,7 @@ export default function RoomCreate({ onClose, onCreateRoom }: RoomCreateProps) {
                 >
                   <option value={500}>$500</option>
                   <option value={1000}>$1,000</option>
+                  <option value={1200}>$1,200</option>
                   <option value={1500}>$1,500</option>
                   <option value={2000}>$2,000</option>
                   <option value={3000}>$3,000</option>
@@ -216,7 +217,7 @@ export default function RoomCreate({ onClose, onCreateRoom }: RoomCreateProps) {
                   id="autoRoll"
                   checked={formData.autoRoll}
                   onChange={(e) => handleInputChange('autoRoll', e.target.checked)}
-                  className="mr-3 w-4 h-4"
+                  className="mr-3 w-4 h-4 cursor-pointer"
                 />
                 <label htmlFor="autoRoll" className="text-[#e5e2e1] cursor-pointer">
                   Auto Roll Dice

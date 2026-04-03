@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { useGameStore } from '../../store/gameStore';
-import type { GameStore } from '../../store/gameStore';
+import { useAutoGameStore } from '../../hooks/useGameStore';
+import { useAuthStore } from '../../store/authStore';
 
 const DOT_POSITIONS: Record<number, [number, number][]> = {
   1: [[1, 1]],
@@ -25,16 +25,36 @@ function Die({ value, rolling }: { value: number; rolling: boolean }) {
 }
 
 export default function DicePanel() {
-  const dice = useGameStore((s: GameStore) => s.dice);
-  const phase = useGameStore((s: GameStore) => s.phase);
-  const roll = useGameStore((s: GameStore) => s.roll);
-  const players = useGameStore((s: GameStore) => s.players);
-  const cur = useGameStore((s: GameStore) => s.cur);
+  const store = useAutoGameStore();
+  const dice = store.dice;
+  const phase = store.phase;
+  const roll = store.roll;
+  const players = store.players;
+  const cur = store.cur;
+  const { user } = useAuthStore();
 
   const rolling = phase === 'rolling';
   const walking = phase === 'walking';
-  const isBot = players[cur]?.isBot;
-  const canRoll = phase === 'roll' && !isBot;
+  const curPlayer = players[cur];
+  const isBot = curPlayer?.isBot;
+
+  // Identify local player
+  const me = players.find(p => p.uid === user?.id) || players.find(p => !p.isBot) || players[0];
+  const isMyTurn = curPlayer?.id === me.id;
+
+  const canRoll = phase === 'roll' && isMyTurn && !isBot;
+
+  // Determine button text
+  let btnText = 'TUNG XÚC XẮC';
+  if (walking) btnText = 'Đang Di Chuyển...';
+  else if (rolling) btnText = 'Đang Tung...';
+  else if (phase === 'roll') {
+    if (isBot) btnText = '🤖 Máy Đang Suy Nghĩ...';
+    else if (!isMyTurn) btnText = `Đợi ${curPlayer?.name}...`;
+  } else if (phase === 'modal') {
+    if (isMyTurn) btnText = 'Đang Chọn...';
+    else btnText = `${curPlayer?.name} đang suy nghĩ...`;
+  }
 
   return (
     <div className="flex flex-col items-center gap-2 py-3">
@@ -56,7 +76,7 @@ export default function DicePanel() {
           }`}>
         <span className="material-symbols-outlined text-base"
           style={{ fontVariationSettings: "'FILL' 1" }}>casino</span>
-        {walking ? 'Đang Di Chuyển...' : rolling ? 'Đang Tung...' : isBot && phase === 'roll' ? '🤖 Máy Đang Suy Nghĩ...' : 'TUNG XÚC XẮC'}
+        {btnText}
       </motion.button>
     </div>
   );
